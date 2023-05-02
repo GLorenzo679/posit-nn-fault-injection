@@ -11,10 +11,10 @@ class Injection:
         self.num_bit_representation = num_bit_representation
         t = compute_t(0.8)
         N  = num_weight_net * num_bit_representation * value_bit
-        numberOfFaults = int(compute_date_n(N, 0.5, 0.01, t))
-        print(f"Number of faults to apply:\n{numberOfFaults}")
+        number_of_faults = int(compute_date_n(N, 0.5, 0.01, t))
+        print(f"Number of faults to apply:\n{number_of_faults}")
 
-        for i in range(numberOfFaults):
+        for i in range(number_of_faults):
             fault_id = i
             layer_index = random.randrange(0, num_layer)
             tensor_index = (random.randrange(0, num_batch),
@@ -25,11 +25,11 @@ class Injection:
             bit_index = random.randrange(0, num_bit_representation)
             bit_value = random.randrange(0, 2)
             fault = Fault(fault_id, layer_index, tensor_index, bit_index, bit_value)
-            self.faultList.append(fault)
+            self.fault_list.append(fault)
 
 
     def printInjectionList(self):
-        for i in range(len(self.faultList)):
+        for i in range(len(self.fault_list)):
             self.fault_list[i].printFault()    
 
 
