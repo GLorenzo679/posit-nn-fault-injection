@@ -1,27 +1,28 @@
 from scipy.stats import norm
 import random
-from . import Fault
+from Fault import Fault
 
 
 class Injection:
     def __init__(self):
-        self.faultList = []
+        self.fault_list = []
 
-    def createInjectionList(self, numWeightNet, numBitRapresentation, valueBit, numLayer, numBatch, batchHeight, batchWidth, batchFeatures):
-        self.numBitRapresentation = numBitRapresentation
+    def createInjectionList(self, num_weight_net, num_bit_representation, value_bit, num_layer, num_batch, batch_height, batch_width, batch_features):
+        self.num_bit_representation = num_bit_representation
         t = compute_t(0.8)
-        N  = numWeightNet * numBitRapresentation * valueBit
+        N  = num_weight_net * num_bit_representation * value_bit
         numberOfFaults = int(compute_date_n(N, 0.5, 0.01, t))
         print(f"Number of faults to apply:\n{numberOfFaults}")
+
         for i in range(numberOfFaults):
             fault_id = i
-            layer_index = random.randrange(0, numLayer)
-            tensor_index = (random.randrange(0, numBatch),
-                            random.randrange(0, batchHeight),
-                            random.randrange(0, batchWidth),
-                            random.randrange(0,batchFeatures)
+            layer_index = random.randrange(0, num_layer)
+            tensor_index = (random.randrange(0, num_batch),
+                            random.randrange(0, batch_height),
+                            random.randrange(0, batch_width),
+                            random.randrange(0,batch_features)
                             )
-            bit_index = random.randrange(0, numBitRapresentation)
+            bit_index = random.randrange(0, num_bit_representation)
             bit_value = random.randrange(0, 2)
             fault = Fault(fault_id, layer_index, tensor_index, bit_index, bit_value)
             self.faultList.append(fault)
@@ -29,7 +30,7 @@ class Injection:
 
     def printInjectionList(self):
         for i in range(len(self.faultList)):
-            self.faultList[i].printFault()    
+            self.fault_list[i].printFault()    
 
 
 def compute_t(confidence_level: float = 0.8):
