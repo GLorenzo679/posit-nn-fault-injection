@@ -15,39 +15,8 @@ def random_mask_generator(size):
 
     return mask
 
-def injection(np_posit: int, bit_size: int, pos: int):
-    """
-    Takes as input a posit number and flips one of its bit in a given position.
-
-    Args:
-        np_posit:   A numpy-posit number
-        bit_size:   Bit size of posit input number
-        pos:        Bit position of bit flip
-    Return:
-        inj_posit:  Injected posit number
-    """
-
-    try:
-        if bit_size not in (8, 16, 32):
-            raise Exception("\nBit size should be one between: (8, 16, 32)")
-    except Exception as e:
-        print('Caught Exception:', e)
-        sys.exit()
-
-    if bit_size == 8:
-        posit = sp.posit8()
-        posit_mask = sp.posit8()
-    elif bit_size == 16:
-        posit = sp.posit16()
-        posit_mask = sp.posit16()
-    else:
-        posit = sp.posit32()
-        posit_mask = sp.posit32()
-
 
 def main():
-    injection(12, int(sys.argv[1]))
-
     with tf.Session() as sess:
         path = os.getcwd() + "/deep-pensieve/src/TensorFlow/data/CIFAR10/"
 
@@ -55,7 +24,7 @@ def main():
         LoadMod = tf.train.import_meta_graph(path + "posit8.ckpt.meta")
 
         # Loading weights and biases and other stuff to the model
-        path2 = LoadMod.restore(sess, tf.train.latest_checkpoint(path))
+        LoadMod.restore(sess, tf.train.latest_checkpoint(path))
 
         # print(tf.train.list_variables(path))
 
