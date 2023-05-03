@@ -16,7 +16,7 @@ tf.set_random_seed(2)
 
 # Load CIFAR10 Dataset
 data_set = "CIFAR-10"
-print("Dataset is: ", data_set)
+print("Dataset is:", data_set)
 (_, _), (X_test, y_test) = cifar10.load_data()
 # somehow y_train comes as a 2D nx1 matrix
 y_test = y_test.reshape(y_test.shape[0])
@@ -24,7 +24,8 @@ y_test = y_test.reshape(y_test.shape[0])
 assert len(X_test) == len(y_test)
 
 test_size = 512
-rand_index = random.randrange(0, len(X_test) - test_size -1)
+#rand_index = random.randrange(0, len(X_test) - test_size)
+rand_index = np.random.randint(0, len(X_test) - test_size)
 X_test = X_test[rand_index:rand_index + test_size]
 y_test = y_test[rand_index:rand_index + test_size]
 
@@ -257,6 +258,7 @@ def inference(fault):
     Once you are completely satisfied with your model, evaluate the performance of the model on the test set.
     """
 
+    #with tf.Session(config = tf.ConfigProto(inter_op_parallelism_threads=1, intra_op_parallelism_threads=1)) as sess:
     with tf.Session() as sess:
         previous_variables = [var_name for var_name, _ in tf.contrib.framework.list_variables(model_name)]
         sess.run(tf.global_variables_initializer())
@@ -294,7 +296,7 @@ def inference(fault):
         print("Accuracy:", val_acc)
         print("Top-5:", test_top5)
 
-    return val_acc
+    return val_acc, test_top5
 
 
 def main():
@@ -303,16 +305,24 @@ def main():
     injection.createInjectionList(num_weight_net=10, num_bit_representation=32, num_layer=2, num_batch=5, batch_height=5, batch_width=3, batch_features=64)
 
     # perform inference without injection
-    golden_acc = inference(None)
+    golden_acc, top_5 = inference(None)
 
     for fault in injection.fault_list:
         print(f"\nFault: {fault.fault_id}")
         # perform inference with injection
-        acc = inference(fault)
+        acc, top_5 = inference(fault)
 
         with open(path + "/results/CIFAR10/" + data_t + "_injection.csv", "a+") as file:
-            headers = ["fault_id", "layer_index", "tensor_index", "bit_index", "bit_value", "accuracy", "golden_accuracy", "difference"]
-            writer = csv.DictWriter(file, delimiter=",", lineterminator='\n',fieldnames=headers)
+            headers = ["fault_id",
+                       "layer_index",
+                       "tensor_index",
+                       "bit_index",
+                       "accuracy",
+                       "golden_accuracy",
+                       "difference",
+                       "top_5",
+                       "weight_difference"]
+            writer = csv.DictWriter(file, delimiter=",", lineterminator='\n', fieldnames=headers)
 
             if fault.fault_id == 0:
                 writer.writeheader()
@@ -321,9 +331,10 @@ def main():
                             "layer_index": fault.layer_index,
                             "tensor_index": fault.tensor_index,
                             "bit_index": fault.bit_index,
-                            "bit_value": fault.bit_value,
                             "accuracy": acc,
                             "golden_accuracy": golden_acc,
-                            "difference": acc - golden_acc})
+                            "difference": acc - golden_acc,
+                            "top_5": top_5,
+                            "weight_difference": fault.weight_start - fault.weight_corrupted})
 
 main()
