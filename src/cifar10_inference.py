@@ -1,21 +1,15 @@
-# -*- coding: utf-8 -*-
-"""
-![CifarNet Architecture]
-Source: Alex Krizhevsky, 2013
-"""
-
 from __future__ import division
 from __future__ import print_function
 
 import numpy as np
 import tensorflow as tf
-from sklearn.utils import shuffle
 from tensorflow.keras.datasets import cifar10
 from tensorflow.contrib.layers import flatten
 import sys
 import csv
 import os
-import time
+import random
+from Injection import Injection
 
 np.random.seed(1)
 tf.set_random_seed(2)
@@ -25,28 +19,24 @@ data_set = "CIFAR-10"
 print("Dataset is: ", data_set)
 (_, _), (X_test, y_test) = cifar10.load_data()
 # somehow y_train comes as a 2D nx1 matrix
-# y_train = y_train.reshape(y_train.shape[0])
 y_test = y_test.reshape(y_test.shape[0])
 
-# assert(len(X_train) == len(y_train))
 assert len(X_test) == len(y_test)
 
-# X_train = X_train[:500]
-# y_train = y_train[:500]
-# X_test = X_test[:10]
-# y_test = y_test[:10]
+test_size = 512
+rand_index = random.randrange(0, len(X_test) - test_size -1)
+X_test = X_test[rand_index:rand_index + test_size]
+y_test = y_test[rand_index:rand_index + test_size]
 
 print("\nImage Shape: {}\n".format(X_test[0].shape))
-# print("Training Set:   {} samples".format(len(X_train)))
-print("Test Set:       {} samples".format(len(X_test)))
+print("Test Set: {} samples".format(len(X_test)))
 
 """## Setup TensorFlow
 The `EPOCH` and `BATCH_SIZE` values affect the training speed and model accuracy.
 """
 
-EPOCHS = 30
 BATCH_SIZE = 128
-print("Total epochs:", EPOCHS)
+print("Batch size:", BATCH_SIZE)
 
 # Set Posit data types
 if len(sys.argv) > 1:
@@ -71,77 +61,24 @@ else:
     sys.exit("No data type provided in args")
 
 # confirm dtype
-print("\nType is: ", data_t)
+print("\nType is:", data_t)
 
 # Normalize data
-# X_train = (X_train/255.).astype(posit) # [0,1] normalization
-# X_test = (X_test/255.).astype(posit)
-# X_train = ((X_train-127.5)/127.5).astype(posit)  # [-1,1] normalization
 X_test = ((X_test - 127.5) / 127.5).astype(posit)
-
-# Standarize data
-# mu_X = np.mean(X_train, axis=(0, 1, 2))
-# std_X = np.std(X_train, axis=(0, 1, 2))
-# X_train = ((X_train-mu_X)/std_X).astype(posit)
-# X_test = ((X_test-mu_X)/std_X).astype(posit)
 
 print("Input data type: {}".format(type(X_test[0, 0, 0, 0])))
 
-# https://github.com/tensorflow/tensorflow/blob/24f578cd66bfc3ec35017fc77e136e43c4b74742/tensorflow/python/kernel_tests/lrn_op_test.py
-# https://www.kaggle.com/sarvesh278/cnn-and-batch-normalization-in-tensorflow
-# https://gist.github.com/tomokishii/0ce3bdac1588b5cca9fa5fbdf6e1c412
-
-
-def batch_norm(x, n_out, phase_train):
-    """
-    Batch normalization on convolutional maps.
-    Ref.: http://stackoverflow.com/questions/33949786/how-could-i-use-batch-normalization-in-tensorflow
-    Args:
-        x:           Tensor, 4D BHWD input maps
-        n_out:       integer, depth of input maps
-        phase_train: boolean tf.Varialbe, true indicates training phase
-        scope:       string, variable scope
-    Return:
-        normed:      batch-normalized maps
-    """
-    with tf.variable_scope("bn"):
-        beta = tf.Variable(
-            tf.constant(0.0, shape=[n_out], dtype=tf_type), name="beta", trainable=True
-        )
-        gamma = tf.Variable(
-            tf.constant(1.0, shape=[n_out], dtype=tf_type), name="gamma", trainable=True
-        )
-        batch_mean, batch_var = tf.nn.moments(x, [0, 1, 2], name="moments")
-        ema = tf.train.ExponentialMovingAverage(decay=posit(0.99))
-
-        def mean_var_with_update():
-            ema_apply_op = ema.apply([batch_mean, batch_var])
-            with tf.control_dependencies([ema_apply_op]):
-                return tf.identity(batch_mean), tf.identity(batch_var)
-
-        mean, var = tf.cond(
-            phase_train,
-            mean_var_with_update,
-            # Modified tensorflow/python/ops/gen_nn_ops.py to include posit dtypes
-            # Modified tensorflow/python/training/moving_averages.py to include posit dtypes
-            lambda: (ema.average(batch_mean), ema.average(batch_var)),
-        )
-        normed = tf.nn.batch_normalization(x, mean, var, beta, gamma, 1e-3)
-    return normed
-
-
-"""## Implementation of CifarNet
-Implements the [CifarNet](https://github.com/tensorflow/models/blob/master/research/slim/nets/cifarnet.py)
-
-# Input
-The CifarNet architecture accepts a 32x32xC image as input, where C is the number of color channels. Since CIFAR10 images are RGB, C is 3 in this case.
-
-# Output
-Return the forwarded prediction - logits.
-"""
-
-
 def Convnet(x, training):
+    """## Implementation of CifarNet
+    Implements the [CifarNet](https://github.com/tensorflow/models/blob/master/research/slim/nets/cifarnet.py)
+
+    # Input
+    The CifarNet architecture accepts a 32x32xC image as input, where C is the number of color channels. Since CIFAR10 images are RGB, C is 3 in this case.
+
+    # Output
+    Return the forwarded prediction - logits.
+    """
+
     # Arguments used for tf.truncated_normal, randomly defines variables for the weights and biases for each layer
     mu = 0
     sigma = 0.1
@@ -248,27 +185,13 @@ def Convnet(x, training):
 
 x = tf.placeholder(tf_type, (None, 32, 32, 3))
 y = tf.placeholder(tf.int32, (None))
-# keep_prob = tf.placeholder(tf_type, (None))
 training = tf.placeholder(tf.bool)
-
-"""## Training Pipeline
-Create a training pipeline that uses the model to classify CIFAR10 data.
-"""
-
-rate = posit(0.001)
-
-logits = Convnet(x, training)
-# cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=one_hot_y, logits=logits)
-cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=y, logits=logits)
-loss_operation = tf.reduce_mean(cross_entropy)
-optimizer = tf.train.AdamOptimizer(
-    learning_rate=rate, beta1=posit(0.9), beta2=posit(0.999), epsilon=posit(eps)
-)
-# training_operation = optimizer.minimize(loss_operation)
 
 """## Model Evaluation
 Evaluate how well the loss and accuracy of the model for a given dataset.
 """
+
+logits = Convnet(x, training)
 
 correct_prediction = tf.equal(tf.argmax(logits, 1, output_type=tf.int32), y)
 accuracy_operation = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
@@ -282,7 +205,9 @@ def evaluate(X_data, y_data):
     total_accuracy = 0
     total_top5 = 0
     sess = tf.get_default_session()
+
     for offset in range(0, num_examples, BATCH_SIZE):
+        print(f"\nBatch {int(offset/BATCH_SIZE + 1)}:")
         batch_x, batch_y = (
             X_data[offset : offset + BATCH_SIZE],
             y_data[offset : offset + BATCH_SIZE],
@@ -291,50 +216,13 @@ def evaluate(X_data, y_data):
             [accuracy_operation, top5_operation],
             feed_dict={x: batch_x, y: batch_y, training: False},
         )
+
+        print(f"\tAccuracy: {accuracy}\tTop-5: {top5}")
+
         total_accuracy += accuracy * len(batch_x)
         total_top5 += top5 * len(batch_x)
     return (total_accuracy / num_examples, total_top5 / num_examples)
 
-
-def get_top5(X_data, y_data):
-    num_examples = len(X_data)
-    total_top5 = 0
-    sess = tf.get_default_session()
-    for offset in range(0, num_examples, BATCH_SIZE):
-        batch_x, batch_y = (
-            X_data[offset : offset + BATCH_SIZE],
-            y_data[offset : offset + BATCH_SIZE],
-        )
-        top5 = sess.run(
-            top5_operation, feed_dict={x: batch_x, y: batch_y, training: False}
-        )
-        total_top5 += top5 * len(batch_x)
-    return total_top5 / num_examples
-
-
-def validate(X_data, y_data):
-    num_examples = len(X_data)
-    total_loss = 0
-    total_accuracy = 0
-    sess = tf.get_default_session()
-    for offset in range(0, num_examples, BATCH_SIZE):
-        batch_x, batch_y = (
-            X_data[offset : offset + BATCH_SIZE],
-            y_data[offset : offset + BATCH_SIZE],
-        )
-        _loss, _acc = sess.run(
-            [loss_operation, accuracy_operation],
-            feed_dict={x: batch_x, y: batch_y, training: False},
-        )
-        total_accuracy += _acc * len(batch_x)
-        total_loss += _loss * len(batch_x)
-    return (total_loss / num_examples, total_accuracy / num_examples)
-
-
-hist = {}
-# Adding list as value
-hist["val_acc"] = []
-hist["top5"] = []
 
 """## Remove all training nodes
 Only inference step will be computed with pretrained weights.
@@ -344,62 +232,98 @@ If want to continue training the network (e.g. on transfer learning) comment thi
 """
 tf.graph_util.remove_training_nodes(tf.get_default_graph().as_graph_def())
 
-path = "/home/gabriele/special-project/deep-pensieve/src/TensorFlow"
-
+path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 data_dir = path + "/data/CIFAR10/"
-model_name = data_dir + "posit8.ckpt"
-# model_name = data_dir + 'float32.ckpt'
+model_name = data_dir + sys.argv[1] + ".ckpt"
 
 assert os.path.exists(data_dir), "The directory %s does not exist!" % data_dir
 
 
-"""## Load and cast the Pre-trained Model before Evaluate
-https://stackoverflow.com/a/47077472
+def modify_weight(weight, fault):
+    mask = "0b" + "0"*(31 - fault.bit_index) + str(fault.bit_value) + "0"*(fault.bit_index)
+    print(f"mask: {mask}")
+    fault.setWeightStart(weight, mask)
 
-Once you are completely satisfied with your model, evaluate the performance of the model on the test set.
-"""
-tic = time.time()
-with tf.Session() as sess:
-    previous_variables = [
-        var_name for var_name, _ in tf.contrib.framework.list_variables(model_name)
-    ]
-    # print(previous_variables)
-    sess.run(tf.global_variables_initializer())
-    restore_map = {}
-    for variable in tf.global_variables():
-        if variable.op.name in previous_variables:
-            # print(variable.op.name)
-            var = tf.contrib.framework.load_variable(model_name, variable.op.name)
-            if var.dtype == np.posit32:
-                tf.add_to_collection(
-                    "assignOps", variable.assign(tf.cast(var, tf_type))
-                )
-            else:
-                print("Var. found of type ", var.dtype)  # Log
-                tf.add_to_collection("assignOps", variable.assign(var))
-    sess.run(tf.get_collection("assignOps"))
-    print("Pre-Trained Parameters loaded and casted as type", tf_type)
+    print(f"Start:\t {fault.weight_start}")
+    print(f"End:\t {fault.weight_corrupted}")
 
-    print("Computing Acc. (Top-1) & Top-5...")
-    val_acc, test_top5 = evaluate(X_test, y_test)
-    hist["val_acc"].append(val_acc)
-    hist["top5"].append(test_top5)
-    print("Accuracy:", val_acc)
-    print("Top-5:", test_top5)
+    return fault.weight_corrupted
 
-toc = time.time()
-# Save training results
-results_dir = path + "/train_results/CIFAR10/"
 
-if not os.path.exists(results_dir):
-    os.makedirs(results_dir)  # Unreachable(?)
+def inference(fault):
+    """## Load and cast the Pre-trained Model before Evaluate
+    https://stackoverflow.com/a/47077472
 
-zd = zip(*hist.values())
+    Once you are completely satisfied with your model, evaluate the performance of the model on the test set.
+    """
 
-with open(results_dir + data_t + ".csv", "w") as file:
-    writer = csv.writer(file, delimiter=",")
-    writer.writerow(hist.keys())
-    writer.writerows(zd)
+    with tf.Session() as sess:
+        previous_variables = [var_name for var_name, _ in tf.contrib.framework.list_variables(model_name)]
+        sess.run(tf.global_variables_initializer())
 
-with open(results_dir + "top5.txt", "a+") as f:
-    f.write("%s: %s\n" % (data_t, test_top5))
+        for variable in tf.global_variables():
+            if variable.op.name in previous_variables:
+                var = tf.contrib.framework.load_variable(model_name, variable.op.name)
+                if var.dtype == np.posit32:
+                    tf.add_to_collection("assignOps", variable.assign(tf.cast(var, tf_type)))
+                else:
+                    print("Var. found of type ", var.dtype)
+                    tf.add_to_collection("assignOps", variable.assign(var))
+                    
+        sess.run(tf.get_collection("assignOps"))
+
+        if(fault != None):
+            # get tensor of layer to manipulate 
+            layer_name = "Variable" if fault.layer_index == 0 else "Variable_" + str(fault.layer_index * 2)
+            weights = sess.graph.get_tensor_by_name(f"{layer_name}:0")
+            np_weights = weights.eval()
+            np_weights[fault.tensor_index] = modify_weight(np_weights[fault.tensor_index], fault)
+            sess.run(tf.assign(weights, tf.convert_to_tensor(np_weights, dtype=np.posit32)))
+
+        print("\nPre-Trained Parameters loaded and casted as type", tf_type)
+
+        print("Computing Acc. (Top-1) & Top-5...")
+
+        val_acc, test_top5 = evaluate(X_test, y_test)
+
+        # reset injected weight
+        if(fault != None):
+            np_weights[fault.tensor_index] = fault.weight_start
+            sess.run(tf.assign(weights, tf.convert_to_tensor(np_weights, dtype=np.posit32)))
+
+        print("Accuracy:", val_acc)
+        print("Top-5:", test_top5)
+
+    return val_acc
+
+
+def main():
+    injection = Injection()
+    # num_layer limited to convolutional layers only for now
+    injection.createInjectionList(num_weight_net=10, num_bit_representation=32, num_layer=2, num_batch=5, batch_height=5, batch_width=3, batch_features=64)
+
+    # perform inference without injection
+    golden_acc = inference(None)
+
+    for fault in injection.fault_list:
+        print(f"\nFault: {fault.fault_id}")
+        # perform inference with injection
+        acc = inference(fault)
+
+        with open(path + "/results/CIFAR10/" + data_t + "_injection.csv", "a+") as file:
+            headers = ["fault_id", "layer_index", "tensor_index", "bit_index", "bit_value", "accuracy", "golden_accuracy", "difference"]
+            writer = csv.DictWriter(file, delimiter=",", lineterminator='\n',fieldnames=headers)
+
+            if fault.fault_id == 0:
+                writer.writeheader()
+
+            writer.writerow({"fault_id": fault.fault_id,
+                            "layer_index": fault.layer_index,
+                            "tensor_index": fault.tensor_index,
+                            "bit_index": fault.bit_index,
+                            "bit_value": fault.bit_value,
+                            "accuracy": acc,
+                            "golden_accuracy": golden_acc,
+                            "difference": acc - golden_acc})
+
+main()
