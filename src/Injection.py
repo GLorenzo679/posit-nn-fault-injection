@@ -22,7 +22,7 @@ class Injection:
                             random.randrange(0, batch_width),
                             random.randrange(0,batch_features))
             bit_index = random.randrange(0, num_bit_representation)
-            bit_value = random.randrange(0, 2)
+            bit_value = 1
             fault = Fault(fault_id, layer_index, tensor_index, bit_index, bit_value)
             self.fault_list.append(fault)
 
