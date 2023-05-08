@@ -235,9 +235,7 @@ If want to continue training the network (e.g. on transfer learning) comment thi
 tf.graph_util.remove_training_nodes(tf.get_default_graph().as_graph_def())
 
 path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-#data_dir = path + "/data/CIFAR10/"
-data_dir = "../data/CIFAR10/"
-print(data_dir)
+data_dir = path + "/data/CIFAR10/"
 model_name = data_dir + sys.argv[1] + ".ckpt"
 
 assert os.path.exists(data_dir), "The directory %s does not exist!" % data_dir
@@ -315,8 +313,7 @@ def main():
         # perform inference with injection
         acc, top_5 = inference(fault)
 
-        #with open(path + "/results/CIFAR10/" + data_t + "_injection.csv", "a+") as file:
-        with open("..   /results/CIFAR10/" + data_t + "_injection.csv", "a+") as file:
+        with open(path + "/results/CIFAR10/" + data_t + "_injection.csv", "a+") as file:
             headers = ["fault_id",
                        "layer_index",
                        "tensor_index",
