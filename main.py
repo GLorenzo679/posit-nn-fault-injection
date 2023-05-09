@@ -1,24 +1,35 @@
-import csv
 import os
-import sys
 
-import softposit as sp
-from models.convnet import Convnet
 from src.cifar10_inference import Inference
 from src.Injection import Injection
-from utils.evaluate import evaluate
+from utils.utils import (
+    get_evaluator,
+    get_loader,
+    get_network,
+    get_sp_type,
+    output_to_csv,
+    parse_args,
+)
 
 
-def main():
-    PATH = os.path.abspath(os.path.dirname(__file__))
+def main(args):
+    data_t = args.type
+    network_name = args.network_name
 
-    data_t = sys.argv[1]
+    # initialize inference class
+    inference = Inference(
+        data_t,
+        get_network(network_name),
+        get_evaluator(network_name),
+        args.batch_size,
+        args.size,
+        args.data_set,
+        get_loader(args.data_set),
+    )
 
-    inference = Inference(data_t, Convnet, evaluate)
-
+    # create injection list
     injection = Injection()
-
-    injection.createInjectionList(
+    injection.create_injection_list(
         num_weight_net=10,
         num_bit_representation=32,
         num_layer=2,  # num_layer limited to convolutional layers only for now
@@ -26,52 +37,24 @@ def main():
         batch_height=5,
         batch_width=3,
         batch_features=64,
-        type=sp.posit32,
+        type=get_sp_type(data_t),
     )
 
-    # change to .../results/{model_name provided by user}/ + data_t...
-    results_path = PATH + "/results/CIFAR10/" + data_t + "_injection.csv"
+    # setup path for results file
+    PATH = os.path.abspath(os.path.dirname(__file__))
+    results_path = PATH + "/results/" + args.data_set + "/" + data_t + "_injection.csv"
 
     # perform inference without injection
     golden_acc, _ = inference.compute_inference()
 
+    # perform inference for every fault in fault list
     for fault in injection.fault_list:
         print(f"\nFault: {fault.fault_id}")
         # perform inference with injection
         acc, top_5 = inference.compute_inference(fault)
-
-        with open(results_path, "a+") as file:
-            headers = [
-                "fault_id",
-                "layer_index",
-                "tensor_index",
-                "bit_index",
-                "accuracy",
-                "golden_accuracy",
-                "difference",
-                "top_5",
-                "weight_difference",
-            ]
-
-            writer = csv.DictWriter(file, delimiter=",", lineterminator="\n", fieldnames=headers)
-
-            if fault.fault_id == 0:
-                writer.writeheader()
-
-            writer.writerow(
-                {
-                    "fault_id": fault.fault_id,
-                    "layer_index": fault.layer_index,
-                    "tensor_index": fault.tensor_index,
-                    "bit_index": fault.bit_index,
-                    "accuracy": acc,
-                    "golden_accuracy": golden_acc,
-                    "difference": acc - golden_acc,
-                    "top_5": top_5,
-                    "weight_difference": fault.weight_start - fault.weight_corrupted,
-                }
-            )
+        # output results to csv in results_path
+        output_to_csv(results_path, fault, acc, golden_acc, top_5)
 
 
 if __name__ == "__main__":
-    main()
+    main(args=parse_args())
