@@ -13,7 +13,7 @@ class Injection:
     def __compute_binary_mask__(self, fault):
         return "0b" + "0" * (self.num_bit_representation - 1 - fault.bit_index) + str(1) + "0" * (fault.bit_index)
 
-    def createInjectionList(
+    def create_injection_list(
         self,
         num_weight_net,
         num_bit_representation,
@@ -48,7 +48,7 @@ class Injection:
             fault.binary_mask = self.__compute_binary_mask__(fault)
             self.fault_list.append(fault)
 
-    def printInjectionList(self):
+    def print_injection_list(self):
         for i in range(len(self.fault_list)):
             self.fault_list[i].printFault()
 
