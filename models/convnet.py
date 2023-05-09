@@ -2,7 +2,7 @@ import tensorflow as tf
 from tensorflow.contrib.layers import flatten
 
 
-def Convnet(x, training, tf_type):
+def model(x, tf_type):
     """## Implementation of CifarNet
     Implements the [CifarNet](https://github.com/tensorflow/models/blob/master/research/slim/nets/cifarnet.py)
 
@@ -93,5 +93,26 @@ def Convnet(x, training, tf_type):
 
     return logits
 
-    # out = tf.identity(logits+0)
-    # return out
+
+def evaluate(X_data, y_data, batch_size, x, y, training, accuracy_operation, top5_operation):
+    num_examples = len(X_data)
+    total_accuracy = 0
+    total_top5 = 0
+    sess = tf.get_default_session()
+
+    for offset in range(0, num_examples, batch_size):
+        print(f"\nBatch {int(offset/batch_size + 1)}:")
+        batch_x, batch_y = (
+            X_data[offset : offset + batch_size],
+            y_data[offset : offset + batch_size],
+        )
+        accuracy, top5 = sess.run(
+            [accuracy_operation, top5_operation],
+            feed_dict={x: batch_x, y: batch_y, training: False},
+        )
+
+        print(f"\tAccuracy: {accuracy}\tTop-5: {top5}")
+
+        total_accuracy += accuracy * len(batch_x)
+        total_top5 += top5 * len(batch_x)
+    return (total_accuracy / num_examples, total_top5 / num_examples)
