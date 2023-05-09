@@ -30,9 +30,10 @@ def parse_args():
     parser.add_argument(
         "--data-set", "-d", type=str, required=True, help="Name of the dataset to use", choices=["CIFAR10"]
     )
-    parser.add_argument("--batch-size", "-b", type=int, default=64, help="Test set batch size")
+    parser.add_argument("--batch-size", type=int, default=64, help="Test set batch size")
     parser.add_argument("--size", "-s", type=int, default=512, help="Test set size")
     parser.add_argument("--force-n", type=int, default=None, help="Force n fault injections")
+    parser.add_argument("--bit_len", "-b", type=int, required=True, help="Number of bits of data")
 
     parsed_args = parser.parse_args()
 

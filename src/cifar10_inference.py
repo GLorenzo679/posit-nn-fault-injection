@@ -125,7 +125,7 @@ class Inference:
                 print(f"Start:\t {fault.weight_start}")
                 print(f"End:\t {fault.weight_corrupted}")
 
-                sess.run(tf.assign(weights, tf.convert_to_tensor(np_weights, dtype=np.posit32)))
+                sess.run(tf.assign(weights, tf.convert_to_tensor(np_weights, dtype=self.posit)))
 
             print("\nPre-Trained Parameters loaded and casted as type", self.tf_type)
 

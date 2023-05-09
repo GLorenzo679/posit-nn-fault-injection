@@ -33,7 +33,7 @@ def main(args):
     injection = Injection()
     injection.create_injection_list(
         num_weight_net=10,
-        num_bit_representation=32,
+        num_bit_representation=args.bit_len,
         num_layer=2,  # num_layer limited to convolutional layers only for now
         num_batch=5,
         batch_height=5,
