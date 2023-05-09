@@ -1,12 +1,12 @@
-from __future__ import division
-from __future__ import print_function
+from __future__ import division, print_function
+
+import os
+import random
+import sys
 
 import numpy as np
 import softposit as sp
 import tensorflow as tf
-import sys
-import os
-import random
 
 
 def random_mask_generator(size):
@@ -47,16 +47,12 @@ def main():
 
         # binary representation of posit8 number before injection:
         print("Binary representation of posit8 number before injection:")
-        print(
-            bin(int.from_bytes(fault[rand_index].tobytes(), byteorder=sys.byteorder)) + "\n"
-        )
+        print(bin(int.from_bytes(fault[rand_index].tobytes(), byteorder=sys.byteorder)) + "\n")
 
         # create softposit posit8 object
         sp8 = sp.posit8()
         # extract binary representation of np posit8
-        np8_bin_representation = bin(
-            int.from_bytes(fault[rand_index].tobytes(), byteorder=sys.byteorder)
-        )
+        np8_bin_representation = bin(int.from_bytes(fault[rand_index].tobytes(), byteorder=sys.byteorder))
         # create a softposit posit8 with bites from np posit8
         sp8.fromBits(int(np8_bin_representation, 2))
 
@@ -80,5 +76,6 @@ def main():
         # print('\nmodified tensor: \n')
         sess.run(tf.assign(w1, fault))
         # print(sess.run(w1))
+
 
 main()
