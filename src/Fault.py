@@ -15,7 +15,7 @@ class Fault:
     def set_weight(self, np_weight_start):
         # extract binary representation of np posit
         np_bin_representation = bin(int.from_bytes(np_weight_start.tobytes(), byteorder=sys.byteorder))
-        # create a softposit posit32 with bits from np posit32
+        # create a softposit posit with bits from np posit
         self.weight_start.fromBits(int(np_bin_representation, 2))
 
         # print(f"np bin repr: {np_bin_representation}")
