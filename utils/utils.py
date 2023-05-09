@@ -4,6 +4,7 @@ import csv
 import numpy as np
 import softposit as sp
 from models import convnet
+from src import cifar10_inference
 from tensorflow.keras.datasets import cifar10
 
 
@@ -70,6 +71,11 @@ def get_sp_type(data_t):
         return sp.posit8
     elif data_t == "float32":
         return np.float32
+
+
+def get_inference(data_set):
+    if data_set == "CIFAR10":
+        return cifar10_inference.Inference
 
 
 def output_to_csv(results_path, fault, acc, golden_acc, top_5):

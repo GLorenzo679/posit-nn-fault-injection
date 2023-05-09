@@ -1,9 +1,9 @@
 import os
 
-from src.cifar10_inference import Inference
 from src.Injection import Injection
 from utils.utils import (
     get_evaluator,
+    get_inference,
     get_loader,
     get_network,
     get_sp_type,
@@ -15,15 +15,17 @@ from utils.utils import (
 def main(args):
     data_t = args.type
     network_name = args.network_name
+    data_set = args.data_set
+    inference_class = get_inference(data_set)
 
     # initialize inference class
-    inference = Inference(
+    inference = inference_class(
         data_t,
         get_network(network_name),
         get_evaluator(network_name),
         args.batch_size,
         args.size,
-        args.data_set,
+        data_set,
         get_loader(args.data_set),
     )
 
