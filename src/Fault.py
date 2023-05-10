@@ -27,7 +27,7 @@ class Fault:
 
         self.weight_corrupted = self.weight_start ^ self.mask
 
-    # def print_fault(self):
+    #def print_fault(self):
     #    print(
     #        str(self.fault_id)
     #        + ", "
