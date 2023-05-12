@@ -1,2 +1,0 @@
-fault_id,layer_index,tensor_index,bit_index,accuracy,golden_accuracy,difference,top_5,weight_difference
-
