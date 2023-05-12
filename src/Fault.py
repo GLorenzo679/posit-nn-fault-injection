@@ -37,7 +37,7 @@ class Fault:
 
             # create float mask from binary string
             self.mask = np.float32(struct.unpack("f", struct.pack("I", int(self.binary_mask, 0)))[0])
-            print(f"binary_mask: {self.binary_mask}")
+            print(f"binary_mask:\t\t  {self.binary_mask}")
 
             # --- ONLY FOR DEBUG ---
 
@@ -51,8 +51,10 @@ class Fault:
             #         byteorder=sys.byteorder,
             #     )
             # )
-            # print(np_bin_representation)
-            # print(weight_corrupted_bit)
+            # print(f"np_bin_reprensentation:{np_bin_representation:>37}")
+            # print(f"np_weight_corrupted:{weight_corrupted_bit:>40}")
+
+            #--------------------------------
 
             # perform binary xor and create corrupted float
             self.weight_corrupted = np.float32(
