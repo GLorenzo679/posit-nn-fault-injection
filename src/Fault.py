@@ -64,3 +64,16 @@ class Fault:
                     ),
                 )[0]
             )
+
+    def print_fault(self):
+        print(
+            str(self.fault_id)
+            + ", "
+            + str(self.layer_index)
+            + ", "
+            + str(self.tensor_index)
+            + ", "
+            + str(self.bit_index)
+            + ", "
+            + str(self.bit_value)
+        )
