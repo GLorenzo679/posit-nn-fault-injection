@@ -1,4 +1,7 @@
 import sys
+import struct
+
+import numpy as np
 
 
 class Fault:
@@ -15,27 +18,49 @@ class Fault:
     def set_weight(self, np_weight_start):
         # extract binary representation of np posit
         np_bin_representation = bin(int.from_bytes(np_weight_start.tobytes(), byteorder=sys.byteorder))
-        # create a softposit posit with bits from np posit
-        self.weight_start.fromBits(int(np_bin_representation, 2))
 
-        # print(f"np bin repr: {np_bin_representation}")
-        # print(f"weight start: {self.weight_start}")
+        if type(np_weight_start) is not np.float32:
+            print("IN POSIT")
+            # create a softposit posit with bits from np posit
+            self.weight_start.fromBits(int(np_bin_representation, 2))
 
-        self.mask.fromBits(int(self.binary_mask, 0))
+            # create sp mask from binary string
+            self.mask.fromBits(int(self.binary_mask, 0))
+            print(f"binary_mask: {self.binary_mask}")
 
-        print(f"binary_mask: {self.binary_mask}")
+            # bitwise xor
+            self.weight_corrupted = self.weight_start ^ self.mask
+        else:
+            print("IN FLOAT")
+            # save current float weight
+            self.weight_start = np_weight_start
 
-        self.weight_corrupted = self.weight_start ^ self.mask
+            # create float mask from binary string
+            self.mask = np.float32(struct.unpack("f", struct.pack("I", int(self.binary_mask, 0)))[0])
+            print(f"binary_mask: {self.binary_mask}")
 
-    # def print_fault(self):
-    #    print(
-    #        str(self.fault_id)
-    #        + ", "
-    #        + str(self.layer_index)
-    #        + ", "
-    #        + str(self.tensor_index)
-    #        + ", "
-    #        + str(self.bit_index)
-    #        + ", "
-    #        + str(self.bit_value)
-    #    )
+            # --- ONLY FOR DEBUG ---
+
+            # bitwise xor to get binary string
+            # weight_corrupted_bit = bin(
+            #     int.from_bytes(
+            #         struct.pack(
+            #             "I",
+            #             int.from_bytes(np_weight_start.tobytes(), byteorder=sys.byteorder) ^ int(self.binary_mask, 0),
+            #         ),
+            #         byteorder=sys.byteorder,
+            #     )
+            # )
+            # print(np_bin_representation)
+            # print(weight_corrupted_bit)
+
+            # perform binary xor and create corrupted float
+            self.weight_corrupted = np.float32(
+                struct.unpack(
+                    "f",
+                    struct.pack(
+                        "I",
+                        int.from_bytes(np_weight_start.tobytes(), byteorder=sys.byteorder) ^ int(self.binary_mask, 0),
+                    ),
+                )[0]
+            )
