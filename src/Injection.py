@@ -50,7 +50,7 @@ class Injection:
 
     def print_injection_list(self):
         for i in range(len(self.fault_list)):
-            self.fault_list[i].printFault()
+            self.fault_list[i].print_fault()
 
 
 def compute_t(confidence_level: float = 0.8):
