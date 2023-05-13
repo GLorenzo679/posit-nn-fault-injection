@@ -1,5 +1,4 @@
-import random
-
+import numpy as np
 from scipy.stats import norm
 from src.Fault import Fault
 
@@ -35,14 +34,14 @@ class Injection:
 
         for i in range(number_of_faults):
             fault_id = i
-            layer_index = random.randrange(0, num_layer)
+            layer_index = np.random.randint(0, num_layer)
             tensor_index = (
-                random.randrange(0, num_batch),
-                random.randrange(0, batch_height),
-                random.randrange(0, batch_width),
-                random.randrange(0, batch_features),
+                np.random.randint(0, num_batch),
+                np.random.randint(0, batch_height),
+                np.random.randint(0, batch_width),
+                np.random.randint(0, batch_features),
             )
-            bit_index = random.randrange(0, num_bit_representation)
+            bit_index = np.random.randint(0, num_bit_representation)
 
             fault = Fault(fault_id, layer_index, tensor_index, bit_index, self.type)
             fault.binary_mask = self.__compute_binary_mask__(fault)

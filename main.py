@@ -27,6 +27,7 @@ def main(args):
         args.size,
         data_set,
         get_loader(args.data_set),
+        args.seed
     )
 
     # create injection list

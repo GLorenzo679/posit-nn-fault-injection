@@ -7,8 +7,8 @@ import tensorflow as tf
 
 
 class Inference:
-    def __init__(self, data_t, nn_model, evaluator, batch_size, data_set_size, data_set, loader):
-        np.random.seed(1)
+    def __init__(self, data_t, nn_model, evaluator, batch_size, data_set_size, data_set, loader, seed):
+        np.random.seed(seed)
         tf.set_random_seed(2)
 
         self.evaluator = evaluator

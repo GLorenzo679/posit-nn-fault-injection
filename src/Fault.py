@@ -20,7 +20,6 @@ class Fault:
         np_bin_representation = bin(int.from_bytes(np_weight_start.tobytes(), byteorder=sys.byteorder))
 
         if type(np_weight_start) is not np.float32:
-            print("IN POSIT")
             # create a softposit posit with bits from np posit
             self.weight_start.fromBits(int(np_bin_representation, 2))
 
@@ -31,7 +30,6 @@ class Fault:
             # bitwise xor
             self.weight_corrupted = self.weight_start ^ self.mask
         else:
-            print("IN FLOAT")
             # save current float weight
             self.weight_start = np_weight_start
 
@@ -54,7 +52,7 @@ class Fault:
             # print(f"np_bin_reprensentation:{np_bin_representation}")
             # print(f"np_weight_corrupted:{weight_corrupted_bit}")
 
-            #--------------------------------
+            # --------------------------------
 
             # perform binary xor and create corrupted float
             self.weight_corrupted = np.float32(
