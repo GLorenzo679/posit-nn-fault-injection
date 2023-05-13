@@ -73,9 +73,8 @@ def get_network_parameters(data_set, network_name, data_t):
         # Loading weights and biases and other stuff to the model
         load_mod.restore(sess, path + data_t + ".ckpt")
 
+        # we only get tensor shape for first layer --> review
         w1 = sess.graph.get_tensor_by_name("Variable:0")
-
-        print(tf.size(w1).eval())
 
         tensor_shape = w1.shape
         # we only consider convolutional layers for now

@@ -42,6 +42,7 @@ def main(args):
         tensor_shape,
         num_bit_representation=args.bit_len,
         type=get_sp_type(data_t),
+        number_of_faults=args.force_n,
     )
 
     # setup path for results file

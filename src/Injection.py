@@ -12,14 +12,18 @@ class Injection:
     def __compute_binary_mask__(self, fault):
         return "0b" + "0" * (self.num_bit_representation - 1 - fault.bit_index) + str(1) + "0" * (fault.bit_index)
 
-    def create_injection_list(self, num_weight_net, num_layer, tensor_shape, num_bit_representation, type):
+    def create_injection_list(
+        self, num_weight_net, num_layer, tensor_shape, num_bit_representation, type, number_of_faults=0
+    ):
         self.num_bit_representation = num_bit_representation
         self.type = type
 
         t = compute_t(0.8)
         N = num_weight_net * num_bit_representation * 2
 
-        number_of_faults = int(compute_date_n(N, 0.5, 0.01, t))
+        if number_of_faults == 0:
+            number_of_faults = int(compute_date_n(N, 0.5, 0.01, t))
+
         print(f"Number of faults to apply: {number_of_faults}")
 
         for i in range(number_of_faults):
