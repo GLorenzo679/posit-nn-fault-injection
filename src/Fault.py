@@ -1,5 +1,5 @@
-import sys
 import struct
+import sys
 
 import numpy as np
 
