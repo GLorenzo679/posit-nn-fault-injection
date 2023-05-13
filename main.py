@@ -6,6 +6,7 @@ from utils.utils import (
     get_inference,
     get_loader,
     get_network,
+    get_network_parameters,
     get_sp_type,
     output_to_csv,
     parse_args,
@@ -21,31 +22,31 @@ def main(args):
     # initialize inference class
     inference = inference_class(
         data_t,
+        network_name,
         get_network(network_name),
         get_evaluator(network_name),
         args.batch_size,
         args.size,
         data_set,
         get_loader(args.data_set),
-        args.seed
+        args.seed,
     )
+
+    num_weight_net, num_layer, tensor_shape = get_network_parameters(data_set, network_name, data_t)
 
     # create injection list
     injection = Injection()
     injection.create_injection_list(
-        num_weight_net=10,
+        num_weight_net,
+        num_layer,  # num_layer limited to convolutional layers only for now
+        tensor_shape,
         num_bit_representation=args.bit_len,
-        num_layer=2,  # num_layer limited to convolutional layers only for now
-        num_batch=5,
-        batch_height=5,
-        batch_width=3,
-        batch_features=64,
         type=get_sp_type(data_t),
     )
 
     # setup path for results file
     PATH = os.path.abspath(os.path.dirname(__file__))
-    results_path = PATH + "/results/" + args.data_set + "/" + data_t + "_injection.csv"
+    results_path = PATH + "/results/" + data_set + "/" + network_name + "/" + data_t + "_injection.csv"
 
     # perform inference without injection
     golden_acc, _ = inference.compute_inference()

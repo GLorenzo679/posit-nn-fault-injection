@@ -1,10 +1,12 @@
 import argparse
 import csv
+import os
 
 import numpy as np
 import softposit as sp
+import tensorflow as tf
 from models import convnet
-from src import cifar10_inference
+from src import convnet_cifar10_inference
 from tensorflow.keras.datasets import cifar10
 
 
@@ -26,7 +28,7 @@ def parse_args():
         required=True,
         choices=["posit8", "posit16", "posit32", "float32"],
     )
-    parser.add_argument("--network-name", "-n", type=str, required=True, help="Network to be used", choices=["Convnet"])
+    parser.add_argument("--network-name", "-n", type=str, required=True, help="Network to be used", choices=["convnet"])
     parser.add_argument(
         "--data-set", "-d", type=str, required=True, help="Name of the dataset to use", choices=["CIFAR10"]
     )
@@ -34,7 +36,7 @@ def parse_args():
     parser.add_argument("--size", "-s", type=int, default=512, help="Test set size")
     parser.add_argument("--force-n", type=int, default=None, help="Force n fault injections")
     parser.add_argument("--bit_len", "-b", type=int, required=True, help="Number of bits of data")
-    parser.add_argument("--seed", type = int, default=0, help = "Set seed for random values generation")
+    parser.add_argument("--seed", type=int, default=0, help="Set seed for random values generation")
 
     parsed_args = parser.parse_args()
 
@@ -50,8 +52,32 @@ def get_network(network_name):
     :return: The loaded network
     """
 
-    if network_name == "Convnet":
+    if network_name == "convnet":
         return convnet.model
+
+
+def get_network_parameters(data_set, network_name, data_t):
+    path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+    path += "/data/" + data_set + "/" + network_name + "/"
+
+    with tf.Session() as sess:
+        # This object loads the model
+        load_mod = tf.train.import_meta_graph(path + data_t + ".ckpt.meta")
+
+        # Loading weights and biases and other stuff to the model
+        load_mod.restore(sess, path + data_t + ".ckpt")
+
+        w1 = sess.graph.get_tensor_by_name("Variable:0")
+
+        print(tf.size(w1).eval())
+
+        tensor_shape = w1.shape
+        # we only consider convolutional layers for now
+        num_layer = 2
+        # for now manually computer (cv1, cv2, fc1, fc2, lin)
+        num_weight_net = 4864 + 102464 + 1573248 + 73920 + 1930
+
+    return num_weight_net, num_layer, tensor_shape
 
 
 def get_loader(data_set):
@@ -60,7 +86,7 @@ def get_loader(data_set):
 
 
 def get_evaluator(network_name):
-    if network_name == "Convnet":
+    if network_name == "convnet":
         return convnet.evaluate
 
 
@@ -77,7 +103,7 @@ def get_sp_type(data_t):
 
 def get_inference(data_set):
     if data_set == "CIFAR10":
-        return cifar10_inference.Inference
+        return convnet_cifar10_inference.Inference
 
 
 def output_to_csv(results_path, fault, acc, golden_acc, top_5):

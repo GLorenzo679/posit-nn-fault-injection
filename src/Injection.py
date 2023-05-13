@@ -12,17 +12,7 @@ class Injection:
     def __compute_binary_mask__(self, fault):
         return "0b" + "0" * (self.num_bit_representation - 1 - fault.bit_index) + str(1) + "0" * (fault.bit_index)
 
-    def create_injection_list(
-        self,
-        num_weight_net,
-        num_bit_representation,
-        num_layer,
-        num_batch,
-        batch_height,
-        batch_width,
-        batch_features,
-        type,
-    ):
+    def create_injection_list(self, num_weight_net, num_layer, tensor_shape, num_bit_representation, type):
         self.num_bit_representation = num_bit_representation
         self.type = type
 
@@ -36,10 +26,10 @@ class Injection:
             fault_id = i
             layer_index = np.random.randint(0, num_layer)
             tensor_index = (
-                np.random.randint(0, num_batch),
-                np.random.randint(0, batch_height),
-                np.random.randint(0, batch_width),
-                np.random.randint(0, batch_features),
+                np.random.randint(0, tensor_shape[0]),
+                np.random.randint(0, tensor_shape[1]),
+                np.random.randint(0, tensor_shape[2]),
+                np.random.randint(0, tensor_shape[3]),
             )
             bit_index = np.random.randint(0, num_bit_representation)
 
