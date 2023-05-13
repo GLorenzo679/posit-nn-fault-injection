@@ -7,7 +7,7 @@ import tensorflow as tf
 
 
 class Inference:
-    def __init__(self, data_t, nn_model, evaluator, batch_size, data_set_size, data_set, loader, seed):
+    def __init__(self, data_t, network_name, nn_model, evaluator, batch_size, data_set_size, data_set, loader, seed):
         np.random.seed(seed)
         tf.set_random_seed(2)
 
@@ -84,7 +84,7 @@ class Inference:
         tf.graph_util.remove_training_nodes(tf.get_default_graph().as_graph_def())
 
         path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-        data_dir = path + "/data/" + data_set + "/"
+        data_dir = path + "/data/" + data_set + "/" + network_name + "/"
         self.model_name = data_dir + data_t + ".ckpt"
 
         assert os.path.exists(data_dir), "The directory %s does not exist!" % data_dir
