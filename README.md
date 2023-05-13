@@ -14,7 +14,7 @@ SP5/
 │  │  ├─ model_name_2/
 │  ├─ dataset_name_2/
 ├─ models/
-├─ results/
+├─ res/
 │  ├─ dataset_name_1/
 │  │  ├─ model_name_1/
 │  │  ├─ model_name_2/
@@ -28,7 +28,7 @@ SP5/
 ```
 data/ -> Containes the weights obtained in the training phase. Each dataset and model has its own folder
 models/ -> Contains the custom models used
-results/ -> Containes the results of the FI campaign. Each dataset and model has its own folder
+res/ -> Containes the results of the FI campaign. Each dataset and model has its own folder
 src/ -> Contains the files that manages the FI campaigns
 utils/ -> Folder with utility files (parser, parameters getters, ...)
 main.py -> Main file to perform FI campaigns and inference

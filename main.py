@@ -47,7 +47,7 @@ def main(args):
 
     # setup path for results file
     PATH = os.path.abspath(os.path.dirname(__file__))
-    results_path = PATH + "/results/" + data_set + "/" + network_name + "/" + data_t + "_injection.csv"
+    results_path = PATH + "/res/" + data_set + "/" + network_name + "/" + data_t + "_injection.csv"
 
     # perform inference without injection
     golden_acc, _ = inference.compute_inference()
