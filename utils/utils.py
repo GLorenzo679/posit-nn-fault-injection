@@ -47,8 +47,6 @@ def get_network(network_name):
     """
     Load the network with the specified name
     :param network_name: The name of the network to load
-    :param device: the device where to load the network
-    :param root: the directory where to look for weights
     :return: The loaded network
     """
 
@@ -57,6 +55,14 @@ def get_network(network_name):
 
 
 def get_network_parameters(data_set, network_name, data_t):
+    """
+    Load the network with the specified name
+    :param data_set: The name of the dataset
+    :param network_name: The name of the network to load
+    :param data_t: Data type
+    :return: Network parameters such as: number of weights, number of layers, and tensor shape
+    """
+
     path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     path += "/data/" + data_set + "/" + network_name + "/"
 
@@ -81,16 +87,34 @@ def get_network_parameters(data_set, network_name, data_t):
 
 
 def get_loader(data_set):
+    """
+    Load the dataset
+    :param data_set: The name of the dataset to load
+    :return: Loader of the requested dataset
+    """
+
     if data_set == "CIFAR10":
         return cifar10.load_data
 
 
 def get_evaluator(network_name):
+    """
+    Get the network evaluator
+    :param network_name: The name of the network to evaluate
+    :return: Function used to evaluate the network
+    """
+
     if network_name == "convnet":
         return convnet.evaluate
 
 
 def get_sp_type(data_t):
+    """
+    Get the data type use for injection
+    :param data_t: Data type
+    :return: Selects the appropriate data type to use when corrupting weights
+    """
+
     if data_t == "posit32":
         return sp.posit32
     elif data_t == "posit16":
@@ -102,11 +126,28 @@ def get_sp_type(data_t):
 
 
 def get_inference(data_set):
+    """
+    Get the function used to perform the inference step
+    :param data_set: The name of the dataset
+    :return: Function used to perform inference
+    """
+
+    # should also add a check on the network used
     if data_set == "CIFAR10":
         return convnet_cifar10_inference.Inference
 
 
 def output_to_csv(results_path, fault, acc, golden_acc, top_5):
+    """
+    Output inference results to a csv file
+    :param results_path: Path
+    :param fault: Fault object
+    :param acc: Accuracy for this fault
+    :param golden_acc: Golden accuracy for this portion of the dataset (accuracy with no injection)
+    :param top_5: Top_5 accuracy for this fault
+    :return: None
+    """
+
     with open(results_path, "a+") as file:
         headers = [
             "fault_id",
