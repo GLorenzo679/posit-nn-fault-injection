@@ -34,8 +34,8 @@ def parse_args():
     )
     parser.add_argument("--batch-size", type=int, default=64, help="Test set batch size")
     parser.add_argument("--size", "-s", type=int, default=512, help="Test set size")
-    parser.add_argument("--force-n", type=int, default=None, help="Force n fault injections")
-    parser.add_argument("--bit_len", "-b", type=int, required=True, help="Number of bits of data")
+    parser.add_argument("--force-n", type=int, default=0, help="Force n fault injections")
+    parser.add_argument("--bit-len", "-b", type=int, required=True, help="Number of bits of data")
     parser.add_argument("--seed", type=int, default=0, help="Set seed for random values generation")
 
     parsed_args = parser.parse_args()

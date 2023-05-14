@@ -66,6 +66,28 @@ The order of the commands is important.
 For more detailed instructions you can check [Deep PeNSieve installation guide](https://github.com/RaulMurillo/deep-pensieve/blob/master/README.md#installation).
 
 # Usage
+To run the programm it is necessary set some parameters from command line. 
+Required values are:
+```
+--type or -t                #Numeric format:  posit8/posit16/posit32/float32        
+--network-name or -n        #Network to use:  convnet
+--data-set or -d            #Input dataset:   CIFAR10     
+--bit-len or -b             #Number of bit:   8/16/32/32
+                            #It is critical that this value be consistent with the numeric format
+```
+
+Other commands may be optional because they use some default values, but they can be modified using: 
+```
+--batch-size                #Batch size dimension  
+--size or -s                #Test set size
+--force-n                   #Force to a specific number of injections
+--seed                      #Seed to random value
+```
+
+To watch more details and its default value you can run the command:
+```
+--help or -h
+```
 
 # Output
 

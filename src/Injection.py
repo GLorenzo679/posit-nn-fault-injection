@@ -13,7 +13,7 @@ class Injection:
         return "0b" + "0" * (self.num_bit_representation - 1 - fault.bit_index) + str(1) + "0" * (fault.bit_index)
 
     def create_injection_list(
-        self, num_weight_net, num_layer, tensor_shape, num_bit_representation, type, number_of_faults=0
+        self, num_weight_net, num_layer, tensor_shape, num_bit_representation, type, number_of_faults
     ):
         self.num_bit_representation = num_bit_representation
         self.type = type
