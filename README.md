@@ -37,14 +37,17 @@ main.py -> Main file to perform FI campaigns and inference
 # Setup
 ## Prerequisite:
 - Python 3.6 (strictly required)
-- protobuf 3.19.6 (maybe???)
-
+- protobuf 3.19.6 (strictly required)
+```
+pip install protobuf==3.19.6
+```
 In order to use this FI framework the following python packages are required:
 
 - numpy 1.15.2
 - softposit
 - numpy-posit (a modified version of numpy supporting posit data type)
 - tensorflow-posit (a modified version of tensorflow supporting posit data type)
+- scipy
 
 You can install these packages with `pip`, using the following commands (the creation of a virtual env is recommended):
 
@@ -54,6 +57,8 @@ pip install requests numpy==1.15.2 softposit
 pip install numpy-posit
 
 pip install https://s3-ap-southeast-1.amazonaws.com/posit-speedgo/tensorflow_posit-1.11.0.0.0.1.dev1-cp36-cp36m-linux_x86_64.whl
+
+pip install scipy
 ```
 
 The order of the commands is important.
