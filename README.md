@@ -90,6 +90,18 @@ To watch more details and its default value you can run the command:
 ```
 
 # Output
+Program produce in output a csv file, if file already exists, it writes to the bottom. Otherwise it creates new one, which name is `<type>`_injection.csv.
+
+Output is organized into:
+* Fault_id: identifier fault
+* Layer_index: location in the net where fault is applied
+* Tensor_index: index where apply the fault
+* Bit_index: weight bit subject to injection
+* Accuracy: net accuracy with corrupt weight 
+* Golden_accuracy: net accuracy without corrupt weight
+* Difference: difference between accuracy and golden_accuracy
+* Top_5:
+* Weight_difference: difference between golden_weight and corrupted_weight 
 
 # Credits
 The ML tasks performed in this framework rely on: [Deep PeNSieve](https://github.com/RaulMurillo/deep-pensieve/).
