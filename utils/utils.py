@@ -66,6 +66,7 @@ def get_network_parameters(data_set, network_name, data_t):
     path = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
     path += "/data/" + data_set + "/" + network_name + "/"
 
+    #with tf.Session(config = tf.ConfigProto(inter_op_parallelism_threads=4, intra_op_parallelism_threads=4)) as sess:
     with tf.Session() as sess:
         # This object loads the model
         load_mod = tf.train.import_meta_graph(path + data_t + ".ckpt.meta")
