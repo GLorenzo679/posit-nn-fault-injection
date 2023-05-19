@@ -33,18 +33,21 @@ def main(args):
     )
 
     num_weight_net, num_layer, tensor_shape = get_network_parameters(data_set, network_name, data_t)
-
+    
     # create injection list
     injection = Injection()
     injection.create_injection_list(
         num_weight_net,
-        num_layer,  # num_layer limited to convolutional layers only for now
+        num_layer  ,  # num_layer limited to convolutional layers only for now
         tensor_shape,
         num_bit_representation=args.bit_len,
         type=get_sp_type(data_t),
         number_of_faults=args.force_n,
+        net_level = args.net_level,
+        bit_index_low = args.low_index,
+        bit_index_high = args.high_index
     )
-
+    
     # setup path for results file
     PATH = os.path.abspath(os.path.dirname(__file__))
     results_path = PATH + "/res/" + data_set + "/" + network_name + "/" + data_t + "_injection.csv"

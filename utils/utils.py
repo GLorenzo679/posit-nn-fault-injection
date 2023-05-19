@@ -20,6 +20,7 @@ def parse_args():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
+    #required
     parser.add_argument(
         "--type",
         "-t",
@@ -32,11 +33,16 @@ def parse_args():
     parser.add_argument(
         "--data-set", "-d", type=str, required=True, help="Name of the dataset to use", choices=["CIFAR10"]
     )
+    parser.add_argument("--bit-len", "-b", type=int, required=True, help="Number of bits of data")
+
+    #optional parameter
     parser.add_argument("--batch-size", type=int, default=64, help="Test set batch size")
     parser.add_argument("--size", "-s", type=int, default=512, help="Test set size")
     parser.add_argument("--force-n", type=int, default=0, help="Force n fault injections")
-    parser.add_argument("--bit-len", "-b", type=int, required=True, help="Number of bits of data")
     parser.add_argument("--seed", type=int, default=0, help="Set seed for random values generation")
+    parser.add_argument("--net-level", type = int, default =-1, help = "To apply fault only on a specific layer")
+    parser.add_argument("--low-index", type = int, default = 0, help = "To set min bit where apply fault")
+    parser.add_argument("--high-index", type = int, default = 31, help = "To set max bit where apply fault")
 
     parsed_args = parser.parse_args()
 

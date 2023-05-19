@@ -74,6 +74,4 @@ class Fault:
             + str(self.tensor_index)
             + ", "
             + str(self.bit_index)
-            + ", "
-            + str(self.bit_value)
         )
