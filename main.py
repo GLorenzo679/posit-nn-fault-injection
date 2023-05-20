@@ -8,6 +8,7 @@ from utils.utils import (
     get_network,
     get_network_parameters,
     get_sp_type,
+    get_name_file,
     output_to_csv,
     parse_args,
 )
@@ -50,7 +51,7 @@ def main(args):
     
     # setup path for results file
     PATH = os.path.abspath(os.path.dirname(__file__))
-    results_path = PATH + "/res/" + data_set + "/" + network_name + "/" + data_t + "_injection.csv"
+    results_path = PATH + "/res/" + data_set + "/" + network_name + "/" +  get_name_file(data_t, args.name_output)
 
     # perform inference without injection
     golden_acc, _ = inference.compute_inference()

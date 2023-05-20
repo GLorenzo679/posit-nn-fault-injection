@@ -85,6 +85,7 @@ Other commands may be optional because they use some default values, but they ca
 --net-level                 #Index in the net where apply faults
 --low-index                 #To set minimum index to start to apply fault on the weight
 --high-index                #To set maximum index to finish to apply fault on the weight
+--name-output               #To set name of the output file
 ```
 
 To watch more details and its default value you can run the command:
