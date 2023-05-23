@@ -1,6 +1,14 @@
 POSIT 32
-python main.py -t posit32 -n convnet -d CIFAR10 -b 32 --batch-size 128 -s 512 --seed 1 --force-n 50 --net-level 0 --low-index 31 --high-index 31 --name-output posit32_net_level0_bit_31
+python main.py -t posit32 -n convnet -d CIFAR10 -b 32 --batch-size 128 -s 512 --seed 1 --force-n 50 --net-level 0 --low-index 31 --high-index 31 --name-output posit32_net_level_0_bit_31
 python main.py -t posit32 -n convnet -d CIFAR10 -b 32 --batch-size 128 -s 512 --seed 1 --force-n 50 --net-level 0 --low-index 30 --high-index 30 --name-output posit32_net_level_0_bit_30 
+python main.py -t posit32 -n convnet -d CIFAR10 -b 32 --batch-size 128 -s 512 --seed 1 --force-n 50 --net-level 0 --low-index 29 --high-index 29 --name-output posit32_net_level_0_bit_29
 
 FLOAT 32
-python main.py -t float32 -n convnet -d CIFAR10 -b 32 --batch-size 128 -s 512 --seed 1 --force-n 50 --net-level 0 --low-index 31 --high-index 31 --name-output float32_net_level0_bit_31
+python main.py -t float32 -n convnet -d CIFAR10 -b 32 --batch-size 128 -s 512 --seed 1 --force-n 50 --net-level 0 --low-index 31 --high-index 31 --name-output float32_net_level_0_bit_31
+python main.py -t float32 -n convnet -d CIFAR10 -b 32 --batch-size 128 -s 512 --seed 1 --force-n 50 --net-level 0 --low-index 30 --high-index 30 --name-output float32_net_level_0_bit_30
+python main.py -t float32 -n convnet -d CIFAR10 -b 32 --batch-size 128 -s 512 --seed 1 --force-n 50 --net-level 0 --low-index 29 --high-index 29 --name-output float32_net_level_0_bit_29
+python main.py -t float32 -n convnet -d CIFAR10 -b 32 --batch-size 128 -s 512 --seed 1 --force-n 50 --net-level 0 --low-index 28 --high-index 28 --name-output float32_net_level_0_bit_28
+python main.py -t float32 -n convnet -d CIFAR10 -b 32 --batch-size 128 -s 512 --seed 1 --force-n 50 --net-level 1 --low-index 28 --high-index 28 --name-output float32_net_level_1_bit_28
+python main.py -t float32 -n convnet -d CIFAR10 -b 32 --batch-size 128 -s 512 --seed 1 --force-n 50 --net-level 1 --low-index 29 --high-index 29 --name-output float32_net_level_1_bit_29
+python main.py -t float32 -n convnet -d CIFAR10 -b 32 --batch-size 128 -s 512 --seed 1 --force-n 50 --net-level 1 --low-index 30 --high-index 30 --name-output float32_net_level_1_bit_30
+python main.py -t float32 -n convnet -d CIFAR10 -b 32 --batch-size 128 -s 512 --seed 1 --force-n 50 --net-level 1 --low-index 31 --high-index 31 --name-output float32_net_level_1_bit_31
