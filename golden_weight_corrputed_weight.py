@@ -54,6 +54,7 @@ def main(args):
     PATH = os.path.abspath(os.path.dirname(__file__))
     results_path = PATH + "/res/" + data_set + "/" + network_name + "/" +  get_name_file(data_t, args.name_output)
 
+    set_weights(injection)
     # perform inference for every fault in fault list
     for fault in injection.fault_list:
         with open(results_path, "a+") as file:
