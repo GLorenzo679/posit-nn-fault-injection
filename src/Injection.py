@@ -13,7 +13,16 @@ class Injection:
         return "0b" + "0" * (self.num_bit_representation - 1 - fault.bit_index) + str(1) + "0" * (fault.bit_index)
 
     def create_injection_list(
-        self, num_weight_net, num_layer, tensor_shape, num_bit_representation, type, number_of_faults
+        self,
+        num_weight_net,
+        num_layer,
+        tensor_shape,
+        num_bit_representation,
+        type,
+        number_of_faults,
+        net_level,
+        bit_index_low,
+        bit_index_high
     ):
         self.num_bit_representation = num_bit_representation
         self.type = type
@@ -28,15 +37,25 @@ class Injection:
 
         for i in range(number_of_faults):
             fault_id = i
-            layer_index = np.random.randint(0, num_layer)
+
+            
+            if net_level == -1:
+                layer_index = np.random.randint(0, num_layer)
+            
+            #to apply fault on a specific level of the network
+            elif net_level < num_layer:
+                layer_index = net_level
+            elif net_level >= num_layer:
+                layer_index = num_layer
+            
             tensor_index = (
                 np.random.randint(0, tensor_shape[0]),
                 np.random.randint(0, tensor_shape[1]),
                 np.random.randint(0, tensor_shape[2]),
                 np.random.randint(0, tensor_shape[3]),
             )
-            bit_index = np.random.randint(0, num_bit_representation)
-
+            bit_index = np.random.randint(bit_index_low, bit_index_high+1)
+            
             fault = Fault(fault_id, layer_index, tensor_index, bit_index, self.type)
             fault.binary_mask = self.__compute_binary_mask__(fault)
             self.fault_list.append(fault)

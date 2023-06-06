@@ -1,4 +1,5 @@
 import os
+import csv
 
 from src.Injection import Injection
 from utils.utils import (
@@ -53,16 +54,41 @@ def main(args):
     PATH = os.path.abspath(os.path.dirname(__file__))
     results_path = PATH + "/res/" + data_set + "/" + network_name + "/" +  get_name_file(data_t, args.name_output)
 
-    # perform inference without injection
-    golden_acc, _ = inference.compute_inference()
-
+    set_weights(injection)
     # perform inference for every fault in fault list
     for fault in injection.fault_list:
-        print(f"\nFault: {fault.fault_id}")
-        # perform inference with injection
-        acc, top_5 = inference.compute_inference(fault)
-        # output results to csv in results_path
-        output_to_csv(results_path, fault, acc, golden_acc, top_5)
+        with open(results_path, "a+") as file:
+            headers = [
+                "fault_id",
+                "layer_index",
+                "tensor_index",
+                "bit_index",
+                "golden_weight"
+                "corrupted_weight"
+                "weight_difference",
+            ]
+
+        writer = csv.DictWriter(file, delimiter=",", lineterminator="\n", fieldnames=headers)
+
+        if fault.fault_id == 0:
+            writer.writeheader()
+
+        writer.writerow(
+            {
+                "fault_id": fault.fault_id,
+                "layer_index": fault.layer_index,
+                "tensor_index": fault.tensor_index,
+                "bit_index": fault.bit_index,
+                "golden_weight": fault.weight_start,
+                "corrputed_weight": fault.weight_corrupted,
+                "weight_difference": fault.weight_start - fault.weight_corrupted,
+            }
+        )
+
+# def set_weights(injection):
+#     for fault in injection.fault_list:
+#         np_weights = weights.eval()
+#         fault.set_weight(np_weights[fault.tensor_index])
 
 
 if __name__ == "__main__":
