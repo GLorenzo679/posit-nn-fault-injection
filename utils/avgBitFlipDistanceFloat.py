@@ -3,7 +3,9 @@ from __future__ import division, print_function
 import csv
 import os
 import sys
+import numpy as np
 from ast import literal_eval as make_tuple
+import struct
 
 import softposit as sp
 import tensorflow as tf
@@ -20,28 +22,30 @@ def main():
 
     with tf.Session() as sess:
         # This object loads the model
-        load_mod = tf.train.import_meta_graph(weights_path + "posit32.ckpt.meta")
+        load_mod = tf.train.import_meta_graph(weights_path + "float32.ckpt.meta")
 
         # Loading weights and biases and other stuff to the model
-        load_mod.restore(sess, weights_path + "posit32.ckpt")
+        load_mod.restore(sess, weights_path + "float32.ckpt")
 
-        for l_net in range(2):
-            for bit in range(29, 32):
-                with open(
-                    PATH + "/res/CIFAR10/convnet/posit32_net_level_" + str(l_net) + "_bit_" + str(bit) + ".csv"
-                ) as csv_file:
+        for layer_index in range(2):
+            for bit_index in range(32):
+                if layer_index == 0:
+                    filename = PATH + "/fault_list_layer_0.csv"
+                else:
+                    filename = PATH + "/fault_list_layer_1.csv"
+
+                with open(filename) as csv_file:
                     csv_reader = csv.reader(csv_file, delimiter=",")
 
                     row_count = sum(1 for row in csv_reader) - 1
                     Tot_BFD = 0
 
                     csv_file.seek(0)
-                    next(csv_reader)
+
+                    i = 0
 
                     for row in csv_reader:
-                        layer_index = int(row[1])
-                        tensor_index = make_tuple(row[2])
-                        bit_index = int(row[3])
+                        tensor_index = make_tuple(row[1])
 
                         if layer_index == 0:
                             weight = sess.graph.get_tensor_by_name("Variable:0")
@@ -55,21 +59,37 @@ def main():
                         print(f"Number present at random index: {tensor_index}")
                         print(weight_start)
 
-                        # create softposit posit32 object
-                        weight_corrupted = sp.posit32()
-                        # extract binary representation of np posit32
-                        np32_bin_representation = bin(int.from_bytes(weight_start.tobytes(), byteorder=sys.byteorder))
-                        # create a softposit posit32 with bites from np posit32
-                        weight_corrupted.fromBits(int(np32_bin_representation, 2))
+                        # binary representation of float32 number before injection:
+                        print("Binary representation of float32 number before injection:")
+                        print(bin(int.from_bytes(fault[tensor_index].tobytes(), byteorder=sys.byteorder)) + "\n")
+
+                        # create softposit float32 object
+                        #weight_corrupted = np.float32()
+                        # extract binary representation of np float32
+                        #np32_bin_representation = bin(int.from_bytes(weight_start.tobytes(), byteorder=sys.byteorder))
+                        # create a softposit float32 with bites from np float32
+                        #weight_corrupted.fromBits(int(np32_bin_representation, 2))
 
                         # fault injection
-                        sp32_mask = sp.posit32()
                         mask = random_bit_mask_generator(32, bit_index)
                         print(f"Mask:\n{mask}")
-                        sp32_mask.fromBits(int(mask, 0))
-                        weight_corrupted = weight_corrupted ^ sp32_mask
+                        weight_corrupted = weight_corrupted = np.float32(
+                            struct.unpack(
+                                "f",
+                                struct.pack(
+                                    "I",
+                                    int.from_bytes(fault[tensor_index].tobytes(), byteorder=sys.byteorder) ^ int(mask, 0),
+                                ),
+                            )[0]
+                        )
 
                         print(f"\nNew posit: {weight_corrupted}")
+
+                        fault[tensor_index] = weight_corrupted
+
+                        # binary representation of float32 number after injection:
+                        print("Binary representation of float32 number after injection:")
+                        print(bin(int.from_bytes(fault[tensor_index].tobytes(), byteorder=sys.byteorder)))            
 
                         BFD = abs(weight_start - weight_corrupted)
                         Tot_BFD += BFD
@@ -79,10 +99,10 @@ def main():
 
                         with open(
                             PATH
-                            + "/res/CIFAR10/convnet/BFD/posit32_net_level_"
-                            + str(l_net)
+                            + "/res/CIFAR10/convnet/BFD/float32_net_level_"
+                            + str(layer_index)
                             + "_bit_"
-                            + str(bit)
+                            + str(bit_index)
                             + ".csv",
                             "a+",
                         ) as file:
@@ -98,7 +118,7 @@ def main():
 
                             writer = csv.DictWriter(file, delimiter=",", lineterminator="\n", fieldnames=headers)
 
-                            if csv_reader.line_num == 53:
+                            if i == 0:
                                 writer.writeheader()
 
                             writer.writerow(
@@ -112,6 +132,8 @@ def main():
                                     "bit_flip_distance": BFD,
                                 }
                             )
+
+                            i += 1
 
                     print(f"Total Bit Flip Distance: {Tot_BFD}")
                     print(f"Average Bit Flip Distance: {Tot_BFD / row_count}")
