@@ -82,6 +82,10 @@ Other commands may be optional because they use some default values, but they ca
 --size or -s                #Test set size
 --force-n                   #Force to a specific number of injections
 --seed                      #Seed to random value
+--net-level                 #Index in the net where apply faults
+--low-index                 #To set minimum index to start to apply fault on the weight
+--high-index                #To set maximum index to finish to apply fault on the weight
+--name-output               #To set name of the output file
 ```
 
 To watch more details and its default value you can run the command:
@@ -100,7 +104,7 @@ Output is organized into:
 * Accuracy: net accuracy with corrupt weight 
 * Golden_accuracy: net accuracy without corrupt weight
 * Difference: difference between accuracy and golden_accuracy
-* Top_5:
+* Top_5: net top 5 accuracy
 * Weight_difference: difference between golden_weight and corrupted_weight 
 
 # Credits

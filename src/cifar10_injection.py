@@ -4,33 +4,27 @@ import os
 import random
 import sys
 
-import numpy as np
 import softposit as sp
 import tensorflow as tf
 
+PATH = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
-def random_mask_generator(size):
-    bits = np.random.randint(2, size=size)
-    mask = "0b" + str(bits)[1:-1].replace(" ", "")
 
-    return mask
+def random_bit_mask_generator(num_bit_representation, bit_index):
+    return "0b" + "0" * (num_bit_representation - 1 - bit_index) + str(1) + "0" * (bit_index)
 
 
 def main():
-    with tf.Session() as sess:
-        path = os.getcwd() + "/deep-pensieve/src/TensorFlow/data/CIFAR10/"
+    weights_path = PATH + "/data/CIFAR10/convnet/"
 
+    with tf.Session() as sess:
         # This object loads the model
-        LoadMod = tf.train.import_meta_graph(path + "posit8.ckpt.meta")
+        load_mod = tf.train.import_meta_graph(weights_path + "posit32.ckpt.meta")
 
         # Loading weights and biases and other stuff to the model
-        LoadMod.restore(sess, tf.train.latest_checkpoint(path))
-
-        # print(tf.train.list_variables(path))
+        load_mod.restore(sess, weights_path + "posit32.ckpt")
 
         w1 = sess.graph.get_tensor_by_name("Variable:0")
-        # print('normal tensor: \n')
-        # print(sess.run(w1))
 
         # create ndarray of tensor
         fault = w1.eval()
@@ -45,37 +39,33 @@ def main():
         print(f"Number present at random index: {rand_index}")
         print(fault[rand_index])
 
-        # binary representation of posit8 number before injection:
-        print("Binary representation of posit8 number before injection:")
+        # binary representation of posit32 number before injection:
+        print("Binary representation of posit32 number before injection:")
         print(bin(int.from_bytes(fault[rand_index].tobytes(), byteorder=sys.byteorder)) + "\n")
 
-        # create softposit posit8 object
-        sp8 = sp.posit8()
-        # extract binary representation of np posit8
-        np8_bin_representation = bin(int.from_bytes(fault[rand_index].tobytes(), byteorder=sys.byteorder))
-        # create a softposit posit8 with bites from np posit8
-        sp8.fromBits(int(np8_bin_representation, 2))
+        # create softposit posit32 object
+        sp32 = sp.posit32()
+        # extract binary representation of np posit32
+        np32_bin_representation = bin(int.from_bytes(fault[rand_index].tobytes(), byteorder=sys.byteorder))
+        # create a softposit posit32 with bites from np posit32
+        sp32.fromBits(int(np32_bin_representation, 2))
 
         # fault injection
-        sp8_mask = sp.posit8()
-        mask = random_mask_generator(size=8)
-        print(f"Mask: {mask}")
-        sp8_mask.fromBits(int(mask, 0))
-        # sp8_mask = random_mask_generator(8)
-        sp8 = sp8 ^ sp8_mask
+        sp32_mask = sp.posit32()
+        mask = random_bit_mask_generator(32, 31)
+        print(f"Mask:\n{mask}")
+        sp32_mask.fromBits(int(mask, 0))
+        sp32 = sp32 ^ sp32_mask
 
-        # assign to previous np posit8 new sp posit8
-        fault[rand_index] = sp8
+        # assign to previous np posit32 new sp posit32
+        fault[rand_index] = sp32
 
-        print(f"New posit: {fault[rand_index]}\n")
+        print(f"\nNew posit: {fault[rand_index]}")
 
-        # binary representation of posit8 number after injection:
-        print("Binary representation of posit8 number after injection:")
+        # binary representation of posit32 number after injection:
+        print("Binary representation of posit32 number after injection:")
         print(bin(int.from_bytes(fault[rand_index].tobytes(), byteorder=sys.byteorder)))
 
-        # print('\nmodified tensor: \n')
-        sess.run(tf.assign(w1, fault))
-        # print(sess.run(w1))
 
-
-main()
+if __name__ == "__main__":
+    main()
