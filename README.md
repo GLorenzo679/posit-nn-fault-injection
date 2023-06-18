@@ -104,7 +104,7 @@ Output is organized into:
 * Accuracy: net accuracy with corrupt weight 
 * Golden_accuracy: net accuracy without corrupt weight
 * Difference: difference between accuracy and golden_accuracy
-* Top_5:
+* Top_5: net top 5 accuracy
 * Weight_difference: difference between golden_weight and corrupted_weight 
 
 # Credits
